@@ -1,0 +1,7 @@
+packages:
+  # TypeScript SDKs
+  - 'typescript/*'
+  
+  # Future SDKs (when needed)
+  # - 'java/*'
+  # - 'python/*'

@@ -1,0 +1,52 @@
+# Dependencies
+node_modules
+.pnpm-store
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+
+# System
+.DS_Store
+Thumbs.db
+
+# NX
+.nx/cache
+.nx/workspace-data
+
+# Build outputs
+dist
+build
+*.egg-info
+__pycache__
+*.pyc
+.pytest_cache
+target
+*.class
+*.jar
+
+# Logs
+logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Testing
+coverage
+.nyc_output
+junit.xml
+
+# Environment
+.env
+.env.local
+*.env
+
+# Temporary files
+tmp
+temp
+.tmp
+
+# Documentation build
+docs/_build
