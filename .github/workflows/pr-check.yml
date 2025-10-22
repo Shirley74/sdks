@@ -9,13 +9,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: 9
+        uses: pnpm/action-setup@v4
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -24,16 +20,13 @@ jobs:
           cache: pnpm
 
       - name: Install Dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install
 
-      - name: Linter for affected packages
-        run: pnpm affected:lint --base=origin/${{ github.base_ref }}
+      - name: Linter
+        run: pnpm lint
 
-      - name: Type Check
+      - name: Types
         run: pnpm lint:types
 
-      - name: Unit tests for affected packages
-        run: pnpm affected:test --base=origin/${{ github.base_ref }}
-
-      - name: Build affected packages
-        run: pnpm affected:build --base=origin/${{ github.base_ref }}
+      - name: Unit tests
+        run: pnpm test

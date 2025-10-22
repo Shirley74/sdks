@@ -43,6 +43,7 @@ junit.xml
 # Environment
 .env
 .env.local
+.env.act
 *.env
 
 # Temporary files

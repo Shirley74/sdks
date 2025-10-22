@@ -34,7 +34,13 @@
     
     "limit-order:build": "nx build limit-order",
     "limit-order:test": "nx test limit-order",
-    "limit-order:lint": "nx lint limit-order"
+    "limit-order:lint": "nx lint limit-order",
+    
+    "test:publish:aqua": "./scripts/test-publish-local.sh aqua",
+    "test:publish:cross-chain": "./scripts/test-publish-local.sh cross-chain",
+    "test:publish:fusion": "./scripts/test-publish-local.sh fusion",
+    "test:publish:limit-order": "./scripts/test-publish-local.sh limit-order",
+    "test:workflows": "act -l"
   },
   "keywords": ["1inch", "sdk", "monorepo", "nx", "typescript", "defi", "protocol"],
   "author": "@1inch",
@@ -62,8 +68,16 @@
     "@types/node": "^22.13.0",
     "@typescript-eslint/eslint-plugin": "^8.32.0",
     "@typescript-eslint/parser": "^8.32.0",
-    "eslint": "^9.18.0",
+    "eslint": "~9.18.0",
     "eslint-config-prettier": "^10.1.5",
+    "eslint-config-standard": "^17.1.0",
+    "eslint-import-resolver-typescript": "^3.10.1",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-n": "^17.18.0",
+    "eslint-plugin-prettier": "^5.4.0",
+    "eslint-plugin-promise": "^7.2.1",
+    "eslint-plugin-unicorn": "59.0.1",
+    "eslint-plugin-unused-imports": "^4.1.4",
     "generate-changelog": "^1.8.0",
     "jest": "^29.7.0",
     "prettier": "^3.5.3",
