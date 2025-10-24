@@ -22,6 +22,7 @@ export class AquaProtocolContract {
      * @returns Encoded calldata as HexString
      * @see https://github.com/1inch/aqua-protocol/blob/master/src/Aqua.sol#L34
      */
+    // todo: in args, tokens and amounts length should be equal validation, so ind of merged
     static encodeShipCallData(args: ShipArgs): HexString {
         const {app, strategy, tokens, amounts} = args
 

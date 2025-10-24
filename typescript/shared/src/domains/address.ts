@@ -49,4 +49,8 @@ export class Address {
     public lastHalf(): string {
         return add0x(this.val.slice(-20))
     }
+
+    toJSON(): string {
+        return this.val
+    }
 }
