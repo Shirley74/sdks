@@ -4,7 +4,7 @@ import {EventAction} from '../types'
 import AQUA_PROTOCOL_ABI from '../../abi/Aqua.abi.json' with {type: 'json'}
 
 export class DockedEvent {
-    public static TOPIC = new HexString(
+    public static TOPIC: HexString = new HexString(
         '0xd173a1d140c154eb1ce9298d251d5eb8c4089cc2d16e70f1067bdc810c6fe004'
     )
 

@@ -4,7 +4,7 @@ import {EventAction} from '../types'
 import AQUA_PROTOCOL_ABI from '../../abi/Aqua.abi.json' with {type: 'json'}
 
 export class ShippedEvent {
-    public static TOPIC = new HexString(
+    public static TOPIC: HexString = new HexString(
         '0xdc3622e06fb145651f567d421c9ef261d71d43e3778b761907bc0d70d42e52b0'
     )
 
@@ -27,7 +27,7 @@ export class ShippedEvent {
             eventName: ShippedEvent.eventName
         })
 
-        // todo: for now leave this way, also we need to leave either strategy or strategyHash
+        // todo: for now leave this way the casting then change, also we need to leave either strategy or strategyHash
         const {maker, app, strategyHash, strategy} =
             decoded.args as unknown as {
                 maker: string

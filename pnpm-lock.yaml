@@ -231,6 +231,31 @@ importers:
         specifier: ^3.2.4
         version: 3.2.4(@types/node@22.18.12)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1)
 
+  typescript/swap-vm:
+    dependencies:
+      '@1inch/sdk-shared':
+        specifier: workspace:*
+        version: link:../shared
+      tslib:
+        specifier: ^2.8.1
+        version: 2.8.1
+      viem:
+        specifier: ^2.21.0
+        version: 2.38.3(typescript@5.9.3)(zod@3.25.76)
+    devDependencies:
+      '@types/node':
+        specifier: ^22.13.0
+        version: 22.18.12
+      tsdown:
+        specifier: ^0.2.17
+        version: 0.2.17(@swc/core@1.13.5)(rollup@4.52.5)(typescript@5.9.3)
+      typescript:
+        specifier: ^5.7.3
+        version: 5.9.3
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.4(@types/node@22.18.12)(jiti@2.6.1)(tsx@4.20.6)(yaml@2.8.1)
+
 packages:
 
   '@1inch/byte-utils@3.0.0':
