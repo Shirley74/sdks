@@ -1,6 +1,8 @@
 import {encodeFunctionData} from 'viem'
 import {CallInfo, Address, HexString} from '@1inch/sdk-shared'
-import {QuoteArgs, QuoteNonViewArgs, SwapArgs} from './types'
+import {BytesBuilder, trim0x} from '@1inch/byte-utils'
+import {QuoteArgs, QuoteNonViewArgs, SwapArgs, Order} from './types'
+import {TakerTraits} from '../swap-vm'
 import SWAP_VM_ABI from '../abi/SwapVM.abi.json' with {type: 'json'}
 
 /**
@@ -12,6 +14,11 @@ export class SwapVMContract {
      * @see https://github.com/1inch/swap-vm/blob/main/src/SwapVM.sol#L84
      */
     static encodeQuoteCallData(args: QuoteArgs): HexString {
+        const takerTraitsAndData = this.buildTakerTraitsAndData(
+            args.takerTraits,
+            args.takerData
+        )
+
         const result = encodeFunctionData({
             abi: SWAP_VM_ABI,
             functionName: 'quote',
@@ -24,7 +31,7 @@ export class SwapVMContract {
                 args.tokenIn.toString(),
                 args.tokenOut.toString(),
                 args.amount,
-                args.takerTraitsAndData.toString()
+                takerTraitsAndData.toString()
             ]
         })
 
@@ -36,6 +43,11 @@ export class SwapVMContract {
      * @see https://github.com/1inch/swap-vm/blob/main/src/SwapVM.sol#L109
      */
     static encodeQuoteNonViewCallData(args: QuoteNonViewArgs): HexString {
+        const takerTraitsAndData = this.buildTakerTraitsAndData(
+            args.takerTraits,
+            args.takerData
+        )
+
         const result = encodeFunctionData({
             abi: SWAP_VM_ABI,
             functionName: 'quoteNonView',
@@ -48,7 +60,7 @@ export class SwapVMContract {
                 args.tokenIn.toString(),
                 args.tokenOut.toString(),
                 args.amount,
-                args.takerTraitsAndData.toString()
+                takerTraitsAndData.toString()
             ]
         })
 
@@ -60,6 +72,13 @@ export class SwapVMContract {
      * @see https://github.com/1inch/swap-vm/blob/main/src/SwapVM.sol#L124
      */
     static encodeSwapCallData(args: SwapArgs): HexString {
+        const sigPlusTakerTraitsAndData = this.buildSigPlusTakerTraitsAndData(
+            args.order,
+            args.takerTraits,
+            args.signature,
+            args.additionalData
+        )
+
         const result = encodeFunctionData({
             abi: SWAP_VM_ABI,
             functionName: 'swap',
@@ -72,7 +91,7 @@ export class SwapVMContract {
                 args.tokenIn.toString(),
                 args.tokenOut.toString(),
                 args.amount,
-                args.sigPlusTakerTraitsAndData.toString()
+                sigPlusTakerTraitsAndData.toString()
             ]
         })
 
@@ -113,5 +132,60 @@ export class SwapVMContract {
             data: this.encodeSwapCallData(args).toString(),
             value: 0n
         }
+    }
+
+    /**
+     * Build sigPlusTakerTraitsAndData parameter from components
+     * Structure depends on whether signature is required or using Aqua
+     */
+    private static buildSigPlusTakerTraitsAndData(
+        order: Order,
+        takerTraits: TakerTraits,
+        signature?: HexString,
+        additionalData?: HexString
+    ): HexString {
+        const useAquaInsteadOfSignature =
+            order.traits.isUseOfAquaInsteadOfSignatureEnabled()
+
+        const builder = new BytesBuilder()
+
+        if (!useAquaInsteadOfSignature && signature) {
+            const sigBytes = trim0x(signature.toString())
+            builder.addUint16(BigInt(sigBytes.length / 2))
+            builder.addBytes(signature.toString())
+            builder.addBytes(takerTraits.encode().toString())
+
+            if (additionalData) {
+                builder.addBytes(additionalData.toString())
+            }
+
+            return new HexString(builder.asHex())
+        }
+
+        builder.addBytes(takerTraits.encode().toString())
+
+        if (additionalData) {
+            builder.addBytes(additionalData.toString())
+        }
+
+        return new HexString(builder.asHex())
+    }
+
+    /**
+     * Build takerTraitsAndData parameter from components
+     * Simple concatenation of traits and additional data
+     */
+    private static buildTakerTraitsAndData(
+        takerTraits: TakerTraits,
+        additionalData?: HexString
+    ): HexString {
+        const traitsBytes = takerTraits.encode()
+
+        return new HexString(
+            traitsBytes.toString() +
+                (additionalData !== undefined
+                    ? trim0x(additionalData.toString())
+                    : '')
+        )
     }
 }

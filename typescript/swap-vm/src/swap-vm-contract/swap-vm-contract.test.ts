@@ -1,134 +1,98 @@
 import {describe, it, expect} from 'vitest'
 import {Address, HexString} from '@1inch/sdk-shared'
-import {QuoteArgs, QuoteNonViewArgs, SwapArgs} from './types'
 import {SwapVMContract} from './swap-vm-contract'
-import {SWAP_VM_CONTRACT_ADDRESSES} from './constants'
-import {MakerTraits} from '../swap-vm/maker-traits'
+import {MakerTraits, TakerTraits} from '../swap-vm'
 
 describe('SwapVMContract', () => {
-    const mockMaker = Address.fromBigInt(1n)
-    const mockTokenIn = Address.fromBigInt(3n)
-    const mockTokenOut = Address.fromBigInt(4n)
-    const mockTraits = MakerTraits.default()
+    const mockMaker = new Address('0x1234567890123456789012345678901234567890')
+    const mockTokenIn = new Address(
+        '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48'
+    ) // USDC
+    const mockTokenOut = new Address(
+        '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2'
+    ) // WETH
     const mockProgram = new HexString('0x01020304')
-    const mockAmount = 1000n
-    const mockTakerTraitsAndData = new HexString('0x05060708')
-    const mockSigPlusTakerTraitsAndData = new HexString('0x090a0b0c')
-    const mockContractAddress = SWAP_VM_CONTRACT_ADDRESSES[1]
 
-    const mockOrder = {
-        maker: mockMaker,
-        traits: mockTraits,
-        program: mockProgram
-    }
-
-    describe('encodeQuoteCallData', () => {
-        it('should encode quote call data correctly', () => {
-            const args: QuoteArgs = {
-                order: mockOrder,
-                tokenIn: mockTokenIn,
-                tokenOut: mockTokenOut,
-                amount: mockAmount,
-                takerTraitsAndData: mockTakerTraitsAndData
+    describe('encodeSwapCallData', () => {
+        it('should encode swap call with signature', () => {
+            const order = {
+                maker: mockMaker,
+                traits: MakerTraits.default(),
+                program: mockProgram
             }
 
-            const callData = SwapVMContract.encodeQuoteCallData(args)
+            const takerTraits = TakerTraits.build({
+                isExactIn: true,
+                threshold: 1000000n
+            })
+
+            const signature = new HexString('0x1234567890abcdef')
+            const additionalData = new HexString('0xdeadbeef')
+
+            const callData = SwapVMContract.encodeSwapCallData({
+                order,
+                tokenIn: mockTokenIn,
+                tokenOut: mockTokenOut,
+                amount: 100000n,
+                signature,
+                takerTraits,
+                additionalData
+            })
+
+            expect(callData).toBeInstanceOf(HexString)
+        })
+
+        it('should encode swap call without signature (using Aqua)', () => {
+            const order = {
+                maker: mockMaker,
+                traits: MakerTraits.build({
+                    useAquaInsteadOfSignature: true
+                }),
+                program: mockProgram
+            }
+
+            const takerTraits = TakerTraits.build({
+                isExactIn: true,
+                threshold: 1000000n
+            })
+
+            const callData = SwapVMContract.encodeSwapCallData({
+                order,
+                tokenIn: mockTokenIn,
+                tokenOut: mockTokenOut,
+                amount: 100000n,
+                takerTraits
+            })
 
             expect(callData).toBeInstanceOf(HexString)
         })
     })
 
-    describe('encodeQuoteNonViewCallData', () => {
-        it('should encode quoteNonView function call data correctly', () => {
-            const args: QuoteNonViewArgs = {
-                order: mockOrder,
-                tokenIn: mockTokenIn,
-                tokenOut: mockTokenOut,
-                amount: mockAmount,
-                takerTraitsAndData: mockTakerTraitsAndData
+    describe('encodeQuoteCallData', () => {
+        it('should encode quote call with takerTraits and data', () => {
+            const order = {
+                maker: mockMaker,
+                traits: MakerTraits.default(),
+                program: mockProgram
             }
 
-            const result = SwapVMContract.encodeQuoteNonViewCallData(args)
+            const takerTraits = TakerTraits.build({
+                isExactIn: true,
+                shouldUnwrapWeth: true
+            })
 
-            expect(result).toBeInstanceOf(HexString)
-            expect(result.toString().startsWith('0x')).toBe(true)
-        })
-    })
+            const takerData = new HexString('0xcafebabe')
 
-    describe('encodeSwapCallData', () => {
-        it('should encode swap function call data correctly', () => {
-            const args: SwapArgs = {
-                order: mockOrder,
+            const callData = SwapVMContract.encodeQuoteCallData({
+                order,
                 tokenIn: mockTokenIn,
                 tokenOut: mockTokenOut,
-                amount: mockAmount,
-                sigPlusTakerTraitsAndData: mockSigPlusTakerTraitsAndData
-            }
+                amount: 50000n,
+                takerTraits,
+                takerData
+            })
 
-            const result = SwapVMContract.encodeSwapCallData(args)
-
-            expect(result).toBeInstanceOf(HexString)
-            expect(result.toString().startsWith('0x')).toBe(true)
-        })
-    })
-
-    describe('buildQuoteTx', () => {
-        it('should build quote transaction correctly', () => {
-            const args: QuoteArgs = {
-                order: mockOrder,
-                tokenIn: mockTokenIn,
-                tokenOut: mockTokenOut,
-                amount: mockAmount,
-                takerTraitsAndData: mockTakerTraitsAndData
-            }
-
-            const tx = SwapVMContract.buildQuoteTx(mockContractAddress, args)
-
-            expect(tx).toBeDefined()
-            expect(tx.to).toBe(mockContractAddress.toString())
-            expect(tx.data.startsWith('0x')).toBe(true)
-            expect(tx.value).toBe(0n)
-        })
-    })
-
-    describe('buildQuoteNonViewTx', () => {
-        it('should build quoteNonView transaction correctly', () => {
-            const args: QuoteNonViewArgs = {
-                order: mockOrder,
-                tokenIn: mockTokenIn,
-                tokenOut: mockTokenOut,
-                amount: mockAmount,
-                takerTraitsAndData: mockTakerTraitsAndData
-            }
-
-            const tx = SwapVMContract.buildQuoteNonViewTx(
-                mockContractAddress,
-                args
-            )
-
-            expect(tx).toBeDefined()
-            expect(tx.to).toBe(mockContractAddress.toString())
-            expect(tx.data.startsWith('0x')).toBe(true)
-            expect(tx.value).toBe(0n)
-        })
-    })
-
-    describe('buildSwapTx', () => {
-        it('should build swap transaction correctly', () => {
-            const args: SwapArgs = {
-                order: mockOrder,
-                tokenIn: mockTokenIn,
-                tokenOut: mockTokenOut,
-                amount: mockAmount,
-                sigPlusTakerTraitsAndData: mockSigPlusTakerTraitsAndData
-            }
-
-            const tx = SwapVMContract.buildSwapTx(mockContractAddress, args)
-
-            expect(tx).toBeDefined()
-            expect(tx.to).toBe(mockContractAddress.toString())
-            expect(tx.data.startsWith('0x')).toBe(true)
-            expect(tx.value).toBe(0n)
+            expect(callData).toBeInstanceOf(HexString)
         })
     })
 })

@@ -1,5 +1,6 @@
 import {Address, HexString} from '@1inch/sdk-shared'
 import {MakerTraits} from '../swap-vm/maker-traits'
+import {TakerTraits} from '../swap-vm'
 
 /**
  * SwapVM Protocol types for the core methods
@@ -19,7 +20,8 @@ export type QuoteArgs = {
     tokenIn: Address
     tokenOut: Address
     amount: bigint
-    takerTraitsAndData: HexString
+    takerTraits: TakerTraits
+    takerData: HexString
 }
 
 export type QuoteNonViewArgs = {
@@ -27,7 +29,8 @@ export type QuoteNonViewArgs = {
     tokenIn: Address
     tokenOut: Address
     amount: bigint
-    takerTraitsAndData: HexString
+    takerTraits: TakerTraits
+    takerData: HexString
 }
 
 export type SwapArgs = {
@@ -35,7 +38,15 @@ export type SwapArgs = {
     tokenIn: Address
     tokenOut: Address
     amount: bigint
-    sigPlusTakerTraitsAndData: HexString
+    /**
+     * Optional - not needed if using Aqua
+     */
+    signature?: HexString
+    takerTraits: TakerTraits
+    /**
+     * Optional additional data (hook data, etc.)
+     */
+    additionalData?: HexString
 }
 
 export type QuoteResult = {
