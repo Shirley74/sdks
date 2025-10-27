@@ -33,7 +33,7 @@ describe('TakerTraits', () => {
                 isFirstTransferFromTaker: true,
                 useTransferFromAndAquaPush: false,
                 threshold,
-                to: mockReceiver
+                customReceiver: mockReceiver
             })
 
             expect(traits.isExactIn()).toBe(true)
@@ -147,7 +147,7 @@ describe('TakerTraits', () => {
                 isExactIn: true,
                 shouldUnwrapWeth: true,
                 threshold,
-                to: mockReceiver
+                customReceiver: mockReceiver
             })
 
             const encoded = originalTraits.encode()

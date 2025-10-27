@@ -98,12 +98,12 @@ export class TakerTraits {
             traits.withUseTransferFromAndAquaPush()
         }
 
-        if (args.threshold !== undefined && args.threshold > 0n) {
+        if (args.threshold) {
             traits.withThreshold(args.threshold)
         }
 
-        if (args.to && !args.to.isZero()) {
-            traits.withCustomReceiver(args.to)
+        if (args.customReceiver && !args.customReceiver.isZero()) {
+            traits.withCustomReceiver(args.customReceiver)
         }
 
         return traits

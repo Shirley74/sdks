@@ -20,5 +20,5 @@ export type TakerTraitsBuildArgs = {
     isFirstTransferFromTaker?: boolean
     useTransferFromAndAquaPush?: boolean
     threshold?: bigint
-    to?: Address
+    customReceiver?: Address
 }
